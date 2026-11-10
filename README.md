@@ -53,9 +53,9 @@ docker run --rm -v /path/to/restv2:/work rest-env bash -c \
 ## Publish in GitHub (ghcr.io)
 
 1. Create a repository for this directory in your GitHub account or organization and push it
-   (`git init`, `git add .`, `git commit`, `git remote add origin ...`, `git push -u origin main`).
+   (`git init`, `git add .`, `git commit`, `git remote add origin ...`, `git push -u origin master`).
 2. The workflow `.github/workflows/build.yml` builds the image and publishes it as
-   `ghcr.io/<owner>/rest-env` (owner in lowercase) at each push to `main` (tag `latest`) and each tag
+   `ghcr.io/<owner>/rest-env` (owner in lowercase) at each push to `master` (tag `latest`) and each tag
    `v*` (e.g. `git tag v1 && git push origin v1`: tag `v1`), also with the commit (`sha-<hash>`). It can also
    be launched by hand (Actions, Build image, Run workflow). It takes about 1 h.
 3. The package is private by default: to use it from the workflows of other repositories, in the package
