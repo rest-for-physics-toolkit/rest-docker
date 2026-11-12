@@ -81,3 +81,30 @@ the image name in the workflow).
 Change the default of the build argument in the `Dockerfile`, push and tag a new version (e.g. `v2`). If
 another version of ROOT, Geant4 or Garfield++ is not compatible with restv2, fix restv2 before moving the
 `latest` tag used by its workflow.
+
+## Image with restv2 installed (rest)
+
+`rest/Dockerfile` builds restv2 on `rest-env` and installs it in `/opt/rest`, with its environment set
+(`PATH`, `LD_LIBRARY_PATH`, `ROOT_INCLUDE_PATH`, `REST_PATH`): `restManager`, `restG4`, `restRoot`... run
+directly, without building restv2. Its build context is a clone of rest-framework, so it is not built by
+this repository: the validation workflow of rest-framework builds it with this Dockerfile and publishes it as
+`ghcr.io/<owner>/rest` when its tests pass, at each push to `master` (tag `latest`, always in sync with
+`master`) and each release (its tag, e.g. `v1.0`), also with the commit (`sha-<hash>`). It is used by the CI
+of the projects and of rest-common-readouts, and in a cluster with Apptainer:
+
+```bash
+apptainer pull rest.sif docker://ghcr.io/<owner>/rest:v1.0
+apptainer exec rest.sif restManager --config Analysis.yaml
+```
+
+Build it locally (from the directory above both clones; `build/` and `install/` of the clone are ignored,
+`rest/Dockerfile.dockerignore`):
+
+```bash
+docker build -f rest-docker/rest/Dockerfile -t rest --build-arg JOBS=16 rest-framework
+docker run --rm -v "$PWD":/work rest restManager --config config.yaml
+```
+
+As `rest-env`, the package is private by default: give access to the repositories that use it (Package
+settings, Manage Actions access) or make it public. A new `rest-env` (e.g. another Geant4) reaches the `rest`
+image at the next push to `master` of rest-framework (or running its validation by hand).

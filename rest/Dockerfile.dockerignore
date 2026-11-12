@@ -1,0 +1,5 @@
+# Ignored in the build context (the clone of rest-framework) of rest/Dockerfile: local builds and installs
+build/
+install/
+**/*.root
+**/*.log
