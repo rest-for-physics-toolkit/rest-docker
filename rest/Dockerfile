@@ -26,7 +26,7 @@ ENV REST_PATH=/opt/rest \
     ROOT_INCLUDE_PATH=/opt/rest/include:${ROOT_INCLUDE_PATH}
 
 # Every application installed and the libraries loaded
-RUN restRoot -b -q && command -v restManager restG4 restCRY restGarfield femclient
+RUN restRoot -b -q && command -v restManager restG4 restGarfield femclient
 
 WORKDIR /work
 CMD ["/bin/bash"]
