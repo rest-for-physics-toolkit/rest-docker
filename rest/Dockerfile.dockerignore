@@ -3,3 +3,6 @@ build/
 install/
 **/*.root
 **/*.log
+# Tracked files: in the image they are needed by the examples, and missing they would make the git tree of the
+# build not clean (codeClean of the run files)
+!packages/restG4/examples/04.MuonScan/Muons.root
