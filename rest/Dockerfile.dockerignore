@@ -1,8 +1,6 @@
-# Ignored in the build context (the clone of rest-framework) of rest/Dockerfile: local builds and installs
+# Ignored in the build context (the clone of rest-framework) of rest/Dockerfile: local builds and installs.
+# Only untracked directories: a tracked file missing in the context (e.g. the references of the pipeline
+# tests, examples/test/reference/*.root) would make the git tree of the build not clean (codeClean of the run
+# files, and the image check of the rest-framework validation fails)
 build/
 install/
-**/*.root
-**/*.log
-# Tracked files: in the image they are needed by the examples, and missing they would make the git tree of the
-# build not clean (codeClean of the run files)
-!packages/restG4/examples/04.MuonScan/Muons.root
