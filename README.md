@@ -73,15 +73,29 @@ docker push ghcr.io/<owner>/rest-env:latest
 
 ## Use in rest-framework
 
-The validation workflow of rest-framework runs its jobs in the container `ghcr.io/<owner>/rest-env` (the owner
-of the rest-framework repository, so both repositories must be in the same account or organization; otherwise
-change the image name in the workflow).
+Each commit of rest-framework pins a tag of this repository in its file `.github/rest-env` (e.g. `v1`): its
+workflows run in the container `ghcr.io/<owner>/rest-env:v1` (the owner of the rest-framework repository, so
+both repositories must be in the same account or organization; otherwise set the repository variable
+`RESTV2_IMAGE` of rest-framework) and build the `rest` image with `rest/Dockerfile` of that tag. A release of
+rest-framework is thus validated with its own environment, also when run again later. `latest` (the last
+commit of `master` of this repository) is still published, e.g. to try a change, but rest-framework does not
+use it; its `rest` image keeps its own `latest` (the last commit of `master` of rest-framework, built on the
+pinned `rest-env`).
 
 ## Updating the versions
 
-Change the default of the build argument in the `Dockerfile`, push and tag a new version (e.g. `v2`). If
-another version of ROOT, Geant4 or Garfield++ is not compatible with rest-for-physics-toolkit, fix
-rest-framework before moving the `latest` tag used by its workflow.
+The tags `vN` are versions of the environment, never moved or deleted once used by rest-framework: a change
+(the default of a build argument in the `Dockerfile`, a package, `rest/Dockerfile`) is pushed to `master` and
+tagged with the next version:
+
+```bash
+git tag v2 && git push origin v2     # builds ghcr.io/<owner>/rest-env:v2 (Build image)
+```
+
+Then, in rest-framework, a pull request changes `.github/rest-env` to `v2`; its validation runs on the new
+environment, and fixes needed by another version of ROOT, Geant4 or Garfield++ go in the same pull request.
+Keep the versions of `scripts/install.sh` of rest-framework (and the ROOT of its macOS job) equal to those of
+the `Dockerfile`.
 
 ## Image with rest-for-physics-toolkit installed (rest)
 
@@ -90,12 +104,12 @@ environment set (`PATH`, `LD_LIBRARY_PATH`, `ROOT_INCLUDE_PATH`, `REST_PATH`): `
 `restRoot`... run directly, without building rest-for-physics-toolkit. Its build context is a clone of
 rest-framework, so it is not built by this repository: the validation workflow of rest-framework builds it
 with this Dockerfile and publishes it as `ghcr.io/<owner>/rest` when its tests pass, at each push to `master`
-(tag `latest`, always in sync with `master`) and each release (its tag, e.g. `v1.0`), also with the commit
+(tag `latest`, always in sync with `master`) and each release (its tag, e.g. `v3.0.0`), also with the commit
 (`sha-<hash>`). It is used by the CI of the projects and of rest-common-readouts, and in a cluster with
 Apptainer:
 
 ```bash
-apptainer pull rest.sif docker://ghcr.io/<owner>/rest:v1.0
+apptainer pull rest.sif docker://ghcr.io/<owner>/rest:v3.0.0
 apptainer exec rest.sif restManager --config Analysis.yaml
 ```
 
@@ -109,4 +123,4 @@ docker run --rm -v "$PWD":/work rest restManager --config config.yaml
 
 As `rest-env`, the package is private by default: give access to the repositories that use it (Package
 settings, Manage Actions access) or make it public. A new `rest-env` (e.g. another Geant4) reaches the `rest`
-image at the next push to `master` of rest-framework (or running its validation by hand).
+image with the pull request of rest-framework that pins its tag (Use in rest-framework).
